@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d0a14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>拼豆图纸 · Bead Pattern</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='10' cy='10' r='7' fill='%238b5cf6'/%3E%3Ccircle cx='22' cy='22' r='7' fill='%23c4b5fd'/%3E%3C/svg%3E">
+<style>
+/* ================= 主题 ================= */
+:root{
+  --jelly:cubic-bezier(.3,1.75,.45,1);          /* 果冻回弹 */
+  --jelly-soft:cubic-bezier(.25,1.35,.45,1);
+  --smooth:cubic-bezier(.22,1,.36,1);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+:root[data-theme="dark"]{
+  --accent:#a78bfa; --accent-2:#c4b5fd; --accent-deep:#8b5cf6;
+  --accent-soft:rgba(139,92,246,.16);
+  --bg-1:#0d0a14; --bg-2:#171126;
+  --glass:linear-gradient(172deg,rgba(255,255,255,.08),rgba(255,255,255,.028) 60%,rgba(255,255,255,.05));
+  --glass-solid:rgba(24,18,36,.93);
+  --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.18);
+  --hi:inset 0 1px 0 rgba(255,255,255,.1);
+  --text:#f5f4f9; --text-2:#a9a4bb; --text-3:#6b6580;
+  --chip:rgba(255,255,255,.06); --chip-hover:rgba(255,255,255,.12);
+  --board:#1d1729; --board-alt:#241c33;
+  --grid-line:rgba(255,255,255,.10); --grid-strong:rgba(255,255,255,.25);
+  --shadow:0 20px 50px rgba(6,2,16,.55);
+  --seg-thumb:rgba(255,255,255,.15);
+  --danger:#ff6b6b;
+  --aur-1:.5; --aur-2:.4; --aur-3:.35;
+}
+:root[data-theme="light"]{
+  --accent:#0a84ff; --accent-2:#4da3ff; --accent-deep:#0066d6;
+  --accent-soft:rgba(10,132,255,.12);
+  --bg-1:#eef4fb; --bg-2:#fbfdff;
+  --glass:linear-gradient(172deg,rgba(255,255,255,.92),rgba(255,255,255,.62) 60%,rgba(255,255,255,.78));
+  --glass-solid:rgba(255,255,255,.95);
+  --border:rgba(18,40,80,.09); --border-strong:rgba(18,40,80,.17);
+  --hi:inset 0 1px 0 rgba(255,255,255,.95);
+  --text:#12203a; --text-2:#52627e; --text-3:#93a1ba;
+  --chip:rgba(18,40,80,.05); --chip-hover:rgba(18,40,80,.1);
+  --board:#ffffff; --board-alt:#f0f5fb;
+  --grid-line:rgba(18,40,80,.09); --grid-strong:rgba(18,40,80,.25);
+  --shadow:0 20px 46px rgba(30,60,120,.14);
+  --seg-thumb:rgba(255,255,255,.97);
+  --danger:#e5484d;
+  --aur-1:.32; --aur-2:.22; --aur-3:.26;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px;color:var(--text);background:var(--bg-1);
+  overflow:hidden;height:100dvh;display:flex;flex-direction:column;
+  transition:background .5s ease,color .5s ease;
+  -webkit-font-smoothing:antialiased;user-select:none;
+}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(158deg,var(--bg-2),var(--bg-1) 62%);transition:background .5s ease}
+
+/* 极光背景（随主题变色） */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora span{position:absolute;border-radius:50%;filter:blur(80px)}
+:root[data-theme="dark"] .a1{background:radial-gradient(circle,rgba(139,92,246,.5),transparent 65%)}
+:root[data-theme="dark"] .a2{background:radial-gradient(circle,rgba(76,29,149,.55),transparent 65%)}
+:root[data-theme="dark"] .a3{background:radial-gradient(circle,rgba(196,181,253,.3),transparent 62%)}
+:root[data-theme="light"] .a1{background:radial-gradient(circle,rgba(10,132,255,.3),transparent 65%)}
+:root[data-theme="light"] .a2{background:radial-gradient(circle,rgba(90,170,255,.26),transparent 65%)}
+:root[data-theme="light"] .a3{background:radial-gradient(circle,rgba(160,215,255,.3),transparent 62%)}
+.aurora .a1{width:360px;height:360px;left:-130px;top:-110px;opacity:var(--aur-1);animation:drift1 24s ease-in-out infinite alternate}
+.aurora .a2{width:440px;height:440px;right:-170px;bottom:16%;opacity:var(--aur-2);animation:drift2 32s ease-in-out infinite alternate}
+.aurora .a3{width:300px;height:300px;right:4%;top:-100px;opacity:var(--aur-3);animation:drift3 38s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(80px,70px) scale(1.2)}}
+@keyframes drift2{to{transform:translate(-80px,-60px) scale(1.14)}}
+@keyframes drift3{to{transform:translate(-60px,80px) scale(.88)}}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ================= 顶栏（极简） ================= */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(9px + var(--safe-t)) 18px 9px;flex:none;position:relative;z-index:20;
+  background:var(--glass);backdrop-filter:blur(32px) saturate(1.8);-webkit-backdrop-filter:blur(32px) saturate(1.8);
+  border-bottom:1px solid var(--border);box-shadow:var(--hi);
+  animation:fadeDown .6s var(--smooth) both;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:32px;height:32px;border-radius:10px;position:relative;flex:none;
+  background:conic-gradient(from 210deg,var(--accent-deep),var(--accent-2),var(--accent-deep));
+  box-shadow:0 5px 15px var(--accent-soft),inset 0 1px 1px rgba(255,255,255,.55);
+  animation:logoIn .8s .1s var(--jelly) both;
+}
+.logo::before,.logo::after{content:"";position:absolute;border-radius:50%;
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.6)}
+.logo::before{width:8.5px;height:8.5px;top:6px;left:6px;background:#fff}
+.logo::after{width:8.5px;height:8.5px;bottom:6px;right:6px;background:rgba(255,255,255,.6)}
+@keyframes logoIn{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+.brand h1{font-size:15.5px;font-weight:750;letter-spacing:.3px}
+
+/* ================= 通用控件 ================= */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 16px;border-radius:14px;border:1px solid var(--border);
+  background:var(--chip);color:var(--text);font-size:14px;font-family:inherit;
+  cursor:pointer;white-space:nowrap;box-shadow:var(--hi);backdrop-filter:blur(10px);
+  transition:transform .35s var(--jelly),background .25s,border-color .25s;
+}
+.btn:active{transform:scale(.92,.88)}
+.btn.primary{
+  background:linear-gradient(150deg,var(--accent-2),var(--accent-deep) 72%);
+  border-color:rgba(255,255,255,.25);color:#fff;font-weight:700;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.45),0 8px 22px var(--accent-soft);
+  position:relative;overflow:hidden;
+}
+.btn.primary::after{
+  content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.32),transparent);
+  transform:skewX(-20deg);animation:shimmer 3.4s ease-in-out infinite;
+}
+@keyframes shimmer{0%,55%{left:-80%}90%,100%{left:130%}}
+.btn.small{padding:9px 13px;font-size:13px;border-radius:12px}
+.btn:disabled{opacity:.3;pointer-events:none}
+input[type="number"],input[type="text"]{
+  background:var(--chip);border:1px solid var(--border);border-radius:13px;
+  color:var(--text);padding:11px 13px;font-size:16px;font-family:inherit;outline:none;
+  transition:border-color .25s,box-shadow .25s;width:100%;
+}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;
+  background:linear-gradient(to right,var(--accent) var(--fill,50%),var(--chip-hover) var(--fill,50%));
+  outline:none;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.05);
+}
+.checkline{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 2px;color:var(--text-2);font-size:14px;cursor:pointer}
+.switch{position:relative;width:47px;height:28px;border-radius:28px;background:var(--chip-hover);
+  border:1px solid var(--border);transition:all .4s var(--smooth);flex:none;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.16)}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;
+  background:var(--text-3);transition:all .4s var(--jelly);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+input:checked + .switch{background:linear-gradient(150deg,var(--accent-2),var(--accent-deep));
+  border-color:transparent;box-shadow:0 3px 12px var(--accent-soft)}
+input:checked + .switch::after{left:20px;background:#fff}
+.hidden-check{display:none}
+.h-title{font-size:11px;font-weight:750;color:var(--text-3);letter-spacing:2.2px;
+  display:flex;align-items:center;gap:7px;margin:15px 0 10px}
+.h-title::before{content:"";width:3.5px;height:13px;border-radius:2px;
+  background:linear-gradient(var(--accent-2),var(--accent-deep));box-shadow:0 0 9px var(--accent-soft)}
+
+/* ================= 画布区（纯图纸 + 手势） ================= */
+.canvas-area{flex:1;position:relative;min-height:0;animation:fadeUp .6s var(--smooth) both}
+.viewport{position:absolute;inset:0;overflow:auto;display:flex;overscroll-behavior:contain;touch-action:none}
+.canvas-center{margin:auto;padding:30px}
+.canvas-frame{border-radius:16px;overflow:hidden;line-height:0;background:var(--board);
+  box-shadow:var(--shadow),0 0 0 1px var(--border-strong);transition:box-shadow .4s}
+.canvas-frame.glow{box-shadow:var(--shadow),0 0 0 2px var(--accent),0 0 46px var(--accent-soft)}
+.canvas-stack{position:relative}
+.canvas-stack canvas{position:absolute;top:0;left:0}
+#mainCanvas{position:relative}
+
+/* 手势提示小胶囊（不挡手势） */
+.gesture-tip{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + var(--safe-b));
+  display:flex;align-items:center;gap:8px;padding:8px 15px;border-radius:30px;
+  background:var(--glass);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);
+  border:1px solid var(--border);box-shadow:var(--shadow),var(--hi);
+  font-size:11.5px;color:var(--text-2);pointer-events:none;white-space:nowrap;
+  font-variant-numeric:tabular-nums;max-width:92%;overflow:hidden;text-overflow:ellipsis;
+  animation:fadeUp .6s .2s var(--smooth) both;
+}
+.gesture-tip .dot{width:15px;height:15px;border-radius:5px;border:1px solid var(--border-strong);
+  flex:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.35)}
+.gesture-tip b{color:var(--accent);font-weight:750}
+
+.empty-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:5;opacity:0;transition:opacity .5s;padding:0 34px;text-align:center}
+.empty-hint.show{opacity:1}
+.empty-hint span{
+  background:var(--glass-solid);backdrop-filter:blur(18px);border:1px solid var(--border-strong);
+  padding:16px 24px;border-radius:22px;color:var(--text-2);font-size:13.5px;line-height:1.8;
+  box-shadow:var(--shadow),var(--hi);animation:float 3.6s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ================= 底部操作舱（固定高度，独立滚动） ================= */
+.sheet{
+  flex:none;position:relative;z-index:30;height:46dvh;
+  background:var(--glass);backdrop-filter:blur(34px) saturate(1.75);-webkit-backdrop-filter:blur(34px) saturate(1.75);
+  border-top:1px solid var(--border-strong);border-radius:26px 26px 0 0;
+  box-shadow:0 -18px 50px rgba(0,0,0,.28),var(--hi);
+  display:flex;flex-direction:column;padding-bottom:var(--safe-b);
+  animation:fadeUp .6s .08s var(--smooth) both;
+}
+.nav-row{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;flex:none}
+.segmented{position:relative;display:flex;flex:1;padding:3px;
+  background:var(--chip);border:1px solid var(--border);border-radius:15px;
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.1)}
+.seg-thumb{position:absolute;top:3px;bottom:3px;border-radius:12px;background:var(--seg-thumb);
+  box-shadow:0 3px 10px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:left .45s var(--jelly),width .45s var(--jelly)}
+.seg-btn{flex:1;position:relative;z-index:1;padding:9.5px 0;border:none;background:transparent;
+  color:var(--text-2);font-size:13.5px;font-family:inherit;cursor:pointer;font-weight:650;
+  transition:color .3s,transform .3s var(--jelly)}
+.seg-btn.active{color:var(--text)}
+.seg-btn:active{transform:scale(.94)}
+/* 常驻导出圆钮 */
+.export-orb{
+  width:50px;height:50px;border-radius:17px;border:none;flex:none;cursor:pointer;
+  background:linear-gradient(150deg,var(--accent-2),var(--accent-deep) 72%);color:#fff;
+  font-size:20px;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.45),0 8px 22px var(--accent-soft);
+  transition:transform .4s var(--jelly),box-shadow .3s;position:relative;overflow:hidden;
+}
+.export-orb::after{
+  content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:skewX(-20deg);animation:shimmer 3.4s ease-in-out infinite;
+}
+.export-orb:active{transform:scale(.86,.82)}
+
+.sheet-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 16px 18px;min-height:0}
+.pane{display:none}
+.pane.active{display:block;animation:paneIn .45s var(--jelly-soft) both}
+@keyframes paneIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* 视图小胶囊开关 */
+.view-row{display:flex;gap:7px;margin-top:12px}
+.view-pill{
+  flex:1;padding:9px 0;border-radius:12px;border:1px solid var(--border);
+  background:var(--chip);color:var(--text-2);font-size:12.5px;font-family:inherit;
+  font-weight:650;cursor:pointer;transition:all .35s var(--jelly);box-shadow:var(--hi);
+}
+.view-pill:active{transform:scale(.9)}
+.view-pill.active{
+  background:linear-gradient(150deg,var(--accent-2),var(--accent-deep));color:#fff;border-color:transparent;
+  box-shadow:0 4px 12px var(--accent-soft),inset 0 1px 1px rgba(255,255,255,.35);
+}
+
+/* 生成页 */
+.up-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:17px 8px;border-radius:18px;border:1.5px dashed var(--border-strong);
+  background:var(--chip);color:var(--text-2);font-size:14px;font-family:inherit;
+  cursor:pointer;transition:all .4s var(--jelly);box-shadow:var(--hi);margin-top:12px;
+}
+.up-btn:active{transform:scale(.95);border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.up-btn .ico{font-size:23px;transition:transform .4s var(--jelly)}
+.up-btn:active .ico{transform:scale(1.25) rotate(-8deg)}
+.up-btn.has-img{border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ref-name{font-size:12px;color:var(--accent);margin:10px 2px 0;word-break:break-all;display:none;line-height:1.5}
+.slider-line{display:flex;flex-direction:column;gap:9px;padding:10px 0;color:var(--text-2);font-size:14px}
+.slider-line .top{display:flex;justify-content:space-between}
+.slider-line .val{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:750}
+
+.size-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px}
+.chip{
+  padding:8.5px 14px;border-radius:11px;background:var(--chip);border:1px solid var(--border);
+  font-size:13px;color:var(--text-2);cursor:pointer;transition:all .35s var(--jelly);
+  font-family:inherit;flex:none;box-shadow:var(--hi);font-variant-numeric:tabular-nums;
+}
+.chip:active{transform:scale(.88)}
+.chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:750}
+.size-custom{display:flex;gap:9px;align-items:center;margin-bottom:4px}
+.size-custom input{flex:1}
+.size-custom .btn{flex:none}
+.transform-row{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:14px}
+.transform-row .btn{padding:11px 0;font-size:16px}
+
+/* 用料页 */
+.stats-summary{font-size:14px;color:var(--text-2);padding:13px 15px;background:var(--chip);
+  border-radius:15px;margin-top:12px;display:flex;justify-content:space-between;box-shadow:var(--hi)}
+.stats-summary b{color:var(--accent);font-size:16px;font-variant-numeric:tabular-nums}
+.stat-row{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;
+  background:var(--chip);margin-top:7px;box-shadow:var(--hi);
+  animation:rowIn .5s var(--jelly-soft) both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.stat-row .sw{width:24px;height:24px;border-radius:8px;border:1px solid rgba(0,0,0,.15);flex:none;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.35)}
+.stat-row .code{font-weight:750;font-size:14px;width:48px;flex:none;font-variant-numeric:tabular-nums}
+.stat-row .name{flex:1;color:var(--text-2);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-row .num{font-size:12.5px;font-weight:750;color:var(--accent);background:var(--accent-soft);
+  padding:4px 11px;border-radius:9px;font-variant-numeric:tabular-nums;min-width:46px;text-align:center}
+.stats-empty{color:var(--text-3);text-align:center;padding:38px 10px;font-size:13.5px;line-height:2.1}
+.copy-row{margin-top:16px}
+.copy-row .btn{width:100%}
+
+/* 色板页 */
+.series-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 12px;margin-top:12px}
+.series-chip{min-width:42px;padding:8px 12px;border-radius:11px;background:var(--chip);
+  border:1px solid var(--border);font-size:13px;color:var(--text-2);cursor:pointer;
+  transition:all .35s var(--jelly);font-family:inherit;text-align:center;flex:none;box-shadow:var(--hi)}
+.series-chip:active{transform:scale(.88)}
+.series-chip.active{background:linear-gradient(150deg,var(--accent-2),var(--accent-deep));
+  border-color:transparent;color:#fff;font-weight:750;box-shadow:0 4px 12px var(--accent-soft)}
+.palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:9px;padding:2px 2px 14px}
+.group-title{grid-column:1/-1;display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:750;color:var(--text-3);letter-spacing:1.8px;margin-top:8px;
+  position:sticky;top:0;z-index:3;padding:7px 2px 5px;
+  background:linear-gradient(var(--glass-solid),transparent 94%);backdrop-filter:blur(6px)}
+.group-title .g-dot{width:8px;height:8px;border-radius:50%;flex:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.4)}
+.group-title .g-count{margin-left:auto;font-weight:400;letter-spacing:0}
+.swatch{position:relative;aspect-ratio:1;border-radius:12px;border:1px solid rgba(0,0,0,.14);
+  transition:transform .35s var(--jelly),box-shadow .25s;overflow:hidden;cursor:pointer;
+  box-shadow:inset 0 1px 1.5px rgba(255,255,255,.35),inset 0 -2px 4px rgba(0,0,0,.16);
+  animation:swIn .45s var(--jelly-soft) both}
+@keyframes swIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.swatch:active{transform:scale(.82)}
+.swatch .code{position:absolute;left:0;right:0;bottom:0;font-size:8.5px;text-align:center;
+  padding:1.5px 0 2px;background:rgba(0,0,0,.5);color:#fff;backdrop-filter:blur(3px);
+  font-weight:650;opacity:.92}
+
+/* ================= 导出预览弹窗 ================= */
+.modal-mask{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(10,8,20,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;transition:opacity .35s var(--smooth)}
+.modal-mask.show{opacity:1;pointer-events:auto}
+.modal-card{
+  width:100%;max-width:520px;max-height:92dvh;display:flex;flex-direction:column;
+  background:var(--glass-solid);backdrop-filter:blur(40px) saturate(1.7);
+  border:1px solid var(--border-strong);border-radius:28px 28px 0 0;
+  box-shadow:0 -20px 70px rgba(0,0,0,.45),var(--hi);
+  padding:18px 18px calc(20px + var(--safe-b));
+  transform:translateY(100%);transition:transform .55s var(--jelly);
+}
+.modal-mask.show .modal-card{transform:none}
+.modal-head{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.modal-head .m-ico{width:42px;height:42px;border-radius:14px;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:21px;
+  background:linear-gradient(150deg,var(--accent-2),var(--accent-deep));
+  box-shadow:0 6px 16px var(--accent-soft),inset 0 1px 1px rgba(255,255,255,.45)}
+.modal-head h3{font-size:16.5px;font-weight:750}
+.modal-head p{font-size:12px;color:var(--text-3);margin-top:2px;font-variant-numeric:tabular-nums}
+.modal-close{margin-left:auto;width:34px;height:34px;border-radius:50%;border:none;
+  background:var(--chip);color:var(--text-2);font-size:15px;cursor:pointer;
+  transition:all .35s var(--jelly);flex:none}
+.modal-close:active{transform:scale(.8) rotate(90deg)}
+.modal-img-wrap{flex:1;min-height:0;overflow:auto;border-radius:18px;background:var(--chip);
+  border:1px solid var(--border);padding:10px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{max-width:100%;border-radius:10px;display:block}
+.modal-tip{text-align:center;font-size:12.5px;color:var(--text-2);padding:12px 0 10px;line-height:1.6}
+.modal-tip b{color:var(--accent)}
+.modal-actions{display:flex;gap:10px}
+.modal-actions .btn{flex:1}
+
+/* Toast */
+.toast-wrap{position:fixed;top:calc(60px + var(--safe-t));left:50%;transform:translateX(-50%);
+  z-index:120;display:flex;flex-direction:column;gap:8px;align-items:center;
+  pointer-events:none;width:max-content;max-width:92vw}
+.toast{background:var(--glass-solid);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  border:1px solid var(--border-strong);color:var(--text);padding:12px 21px;border-radius:30px;
+  font-size:13.5px;box-shadow:var(--shadow),var(--hi);display:flex;gap:9px;align-items:center;
+  animation:toastIn .5s var(--jelly) both;max-width:92vw}
+.toast.out{animation:toastOut .3s ease both}
+.toast .t-ico{color:var(--accent)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-18px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.92)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"></div>
+    <h1>拼豆图纸</h1>
+  </div>
+  <button class="btn small" id="btnTheme" style="width:42px;height:42px;padding:0;font-size:17px">🌙</button>
+</header>
+
+<!-- ============ 上半屏：纯图纸 + 手势 ============ -->
+<section class="canvas-area">
+  <div class="viewport" id="viewport">
+    <div class="canvas-center">
+      <div class="canvas-frame" id="canvasFrame">
+        <div class="canvas-stack" id="canvasStack">
+          <canvas id="bgCanvas"></canvas>
+          <canvas id="mainCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="gesture-tip" id="statusChip">双指缩放 · 单指拖动 · 轻点查色号</div>
+  <div class="empty-hint show" id="emptyHint">
+    <span>🖼️ 从相册选一张图片<br>自动生成带色号的拼豆图纸</span>
+  </div>
+</section>
+
+<!-- ============ 下半屏：全部控件 ============ -->
+<div class="sheet">
+  <div class="nav-row">
+    <div class="segmented" id="segmented">
+      <div class="seg-thumb" id="segThumb"></div>
+      <button class="seg-btn active" data-pane="gen">✨ 生成</button>
+      <button class="seg-btn" data-pane="stats">📦 用料</button>
+      <button class="seg-btn" data-pane="palette">🎨 色板</button>
+    </div>
+    <button class="export-orb" id="btnExportOrb" title="导出到相册" data-primary-action>💾</button>
+  </div>
+  <div class="sheet-body" id="sheetBody">
+
+    <!-- 生成 -->
+    <div class="pane active" id="pane-gen">
+      <div class="view-row">
+        <button class="view-pill active" id="ftBlock">色块</button>
+        <button class="view-pill" id="ftBead">圆豆</button>
+        <button class="view-pill" id="ftCodes">色号</button>
+        <button class="view-pill active" id="ftGrid">网格</button>
+      </div>
+
+      <button class="up-btn" id="btnAlbum"><span class="ico">🖼️</span>从相册选择图片</button>
+      <input type="file" id="fileAlbum" accept="image/*" hidden>
+      <div class="ref-name" id="refName"></div>
+
+      <div class="h-title">画布尺寸</div>
+      <div class="size-chips" id="sizeChips">
+        <button class="chip" data-size="16">16×16</button>
+        <button class="chip" data-size="24">24×24</button>
+        <button class="chip" data-size="32">32×32</button>
+        <button class="chip" data-size="40">40×40</button>
+        <button class="chip" data-size="48">48×48</button>
+        <button class="chip active" data-size="60">60×60</button>
+      </div>
+      <div class="size-custom">
+        <input type="number" id="inpCols" min="4" max="100" value="60" inputmode="numeric" placeholder="宽">
+        <span style="color:var(--text-3)">×</span>
+        <input type="number" id="inpRows" min="4" max="100" value="60" inputmode="numeric" placeholder="高">
+        <button class="btn small" id="btnApplySize">应用</button>
+      </div>
+
+      <label class="checkline">显示参考底图
+        <span><input type="checkbox" class="hidden-check" id="swRefVisible" checked><span class="switch"></span></span>
+      </label>
+      <div class="slider-line">
+        <div class="top"><span>底图透明度</span><span class="val" id="refOpacityVal">35%</span></div>
+        <input type="range" id="refOpacity" min="5" max="100" value="35">
+      </div>
+      <label class="checkline">抑制大面积误判白色
+        <span><input type="checkbox" class="hidden-check" id="swSuppress" checked><span class="switch"></span></span>
+      </label>
+
+      <button class="btn primary" id="btnConvert" style="width:100%;margin-top:10px;padding:14px" data-primary-action>✨ 一键生成拼豆图纸</button>
+
+      <div class="transform-row">
+        <button class="btn" id="btnUndo" title="撤销">↺</button>
+        <button class="btn" id="btnFlipH" title="水平镜像">⇋</button>
+        <button class="btn" id="btnRotate" title="旋转90°">⟳</button>
+        <button class="btn" id="btnFlipV" title="垂直镜像">⇅</button>
+        <button class="btn" id="btnRedo" title="重做">↻</button>
+      </div>
+      <div style="margin-top:11px">
+        <button class="btn small" id="btnClear" style="width:100%;color:var(--danger)">🗑 清空画布</button>
+      </div>
+    </div>
+
+    <!-- 用料 -->
+    <div class="pane" id="pane-stats">
+      <div class="stats-summary">
+        <span>总计 <b id="sumTotal">0</b> 颗</span>
+        <span>共 <b id="sumKinds">0</b> 种颜色</span>
+      </div>
+      <div id="statsList"></div>
+      <div class="copy-row">
+        <button class="btn" id="btnCopyList">📋 复制用料清单</button>
+      </div>
+    </div>
+
+    <!-- 色板 -->
+    <div class="pane" id="pane-palette">
+      <input type="text" id="paletteSearch" placeholder="🔍 搜索色号 / 颜色名…" style="margin-top:12px">
+      <div class="series-chips" id="seriesChips"></div>
+      <div class="palette-grid" id="paletteGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 导出预览弹窗 -->
+<div class="modal-mask" id="exportModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="m-ico">✨</div>
+      <div>
+        <h3>图纸已生成</h3>
+        <p id="exportInfo"></p>
+      </div>
+      <button class="modal-close" id="btnModalClose">✕</button>
+    </div>
+    <div class="modal-img-wrap"><img id="exportImg" alt="拼豆图纸"></div>
+    <p class="modal-tip">点「💾 存到相册」后在面板中选 <b>存储图像</b> 即可入册<br>也可以长按上方图片保存，或下载文件</p>
+    <div class="modal-actions">
+      <button class="btn primary" id="btnShare">💾 存到相册</button>
+      <button class="btn" id="btnDownload">⬇ 下载文件</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   拼豆色板 · A/M 通用色卡（221 色，依据用户提供的官方色号数据）
+   ================================================================ */
+const RAW_COLORS = `
+A1|雪纺黄|FAF4C8
+A2|奶米黄|FFFFD5
+A3|浅柠黄|FEFF8B
+A4|亮金黄|FBED56
+A5|土黄|F4D738
+A6|浅橘橙|FEAC4C
+A7|橘橙|FE8B4C
+A8|向日葵黄|FFDA45
+A9|蜜桃橙|FF995B
+A10|深橘|F77C31
+A11|浅杏橙|FFDD99
+A12|肉橘|FE9F72
+A13|蜜橙黄|FFC365
+A14|橘红|FD543D
+A15|荧光黄|FFF365
+A16|淡奶黄|FFFF9F
+A17|鹅黄|FFE36E
+A18|杏橘|FEBE7D
+A19|珊瑚橙红|FD7C72
+A20|落日黄|FFD568
+A21|浅蜜黄|FFE395
+A22|酸柠黄|F4F57D
+A23|浅肤橙|E6C9B7
+A24|豆黄|F7F8A2
+A25|南瓜黄|FFD67D
+A26|金橙|FFC830
+B1|荧光黄绿|E6EE31
+B2|亮草绿|63F347
+B3|浅草绿|9EF780
+B4|鲜绿|5DE035
+B5|翠绿色|35E352
+B6|薄荷绿|65E2A6
+B7|湖绿|3DAF80
+B8|草绿|1C9C4F
+B9|墨绿|27523A
+B10|浅灰绿|95D3C2
+B11|橄榄绿|5D722A
+B12|深湖绿|166F41
+B13|嫩黄绿|CAEB7B
+B14|柠绿|ADE946
+B15|深墨绿|2E5132
+B16|豆绿|C5ED9C
+B17|橄榄黄绿|9BB13A
+B18|浅荧光绿|E6EE49
+B19|蓝绿|24B88C
+B20|浅薄荷|C2F0CC
+B21|深海绿|156A6B
+B22|青黑绿|0B3C43
+B23|暗橄榄|303A21
+B24|浅豆黄绿|EEFCA5
+B25|灰湖绿|4E846D
+B26|土褐绿|8D7A35
+B27|灰豆绿|CCE1AF
+B28|浅青绿|9EE5B9
+B29|草柠绿|C5E254
+B30|嫩豆绿|E2FCB1
+B31|新芽绿|B0E792
+B32|灰草绿|9CAB5A
+C1|极浅青|E8FFE7
+C2|浅水蓝|A9F9FC
+C3|天青蓝|A0E2FB
+C4|亮天蓝|41CCFF
+C5|宝湖蓝|01ACEB
+C6|晴空蓝|50AAF0
+C7|宝蓝|3677D2
+C8|深蓝|0F54C0
+C9|藏蓝|324BCA
+C10|浅湖蓝|3EBCE2
+C11|青蓝|28DDDE
+C12|墨蓝|1C334D
+C13|云蓝|CDE8FF
+C14|冰水蓝|D5FDFF
+C15|青湖蓝|22C4C6
+C16|深海蓝|1557A8
+C17|电光蓝|04D1F6
+C18|暗墨蓝|1D3344
+C19|蓝青色|1887A2
+C20|海军蓝|176DAF
+C21|雾天蓝|BEDDFF
+C22|灰青蓝|67B4BE
+C23|薄云蓝|C8E2FF
+C24|浅亮蓝|7CC4FF
+C25|浅青灰|A9E5E5
+C26|钢蓝|3CAED8
+C27|雾蓝灰|D3DFFA
+C28|灰雾蓝|BBCFED
+C29|暗宝蓝|34488E
+D1|浅蓝紫|AEB4F2
+D2|灰蓝紫|858EDD
+D3|蓝紫|2F54AF
+D4|深蓝紫|182A84
+D5|洋紫|B843C5
+D6|香芋紫|AC7BDE
+D7|深香芋紫|8854B3
+D8|淡紫白|E2D3FF
+D9|浅香芋紫|D5B9F8
+D10|暗紫黑|361851
+D11|灰紫蓝|B9BAE1
+D12|粉紫|DE9AD4
+D13|艳紫|B90095
+D14|酒紫|8B279B
+D15|紫蓝|2F1F90
+D16|紫白灰|E3E1EE
+D17|浅紫蓝灰|C4D4F6
+D18|紫罗兰|A45EC7
+D19|灰粉紫|D8C3D7
+D20|玫紫|9C32B2
+D21|深艳紫|9A009B
+D22|蓝紫藏色|333A95
+D23|极淡香芋紫|EBDAFC
+D24|紫蓝|7786E5
+D25|蓝紫|494FC7
+D26|淡香芋|DFC2F8
+E1|浅肉粉|FDD3CC
+E2|浅玫粉|FEC0DF
+E3|亮粉|FFB7E7
+E4|玫红|E8649E
+E5|艳玫红|F551A2
+E6|水玫红|F13D74
+E7|深玫红|C63478
+E8|白粉|FFDBE9
+E9|紫粉|E970CC
+E10|深玫紫|D33793
+E11|裸粉|FCDDD2
+E12|桃粉|F78FC3
+E13|酒玫红|B5006D
+E14|浅桃肉|FFD1BA
+E15|浅裸粉|F8C7C9
+E16|米粉白|FFF3EB
+E17|奶粉|FFE2EA
+E18|樱花粉|FFC7DB
+E19|浅桃粉|FEBAD5
+E20|灰粉|D8C7D1
+E21|灰裸粉|BD9DA1
+E22|暗粉紫|B785A1
+E23|暗灰粉|937A8D
+E24|淡紫粉|E1BCE8
+F1|珊瑚红|FD957B
+F2|亮大红|FC3D46
+F3|正红|F74941
+F4|艳红|FC283C
+F5|深红|E7002F
+F6|棕红|943630
+F7|酒红|971937
+F8|酒大红|BC0028
+F9|豆沙红|E2677A
+F10|土红棕|8A4526
+F11|暗红棕|5A2121
+F12|水红|FD4E6A
+F13|橘红|F35744
+F14|浅粉红|FFA9AD
+F15|正酒红|D30022
+F16|浅橙肉|FEC2A6
+F17|砖橙|E69C79
+F18|土橘棕|D37C46
+F19|砖红|C1444A
+F20|灰豆沙|CD9391
+F21|浅桃红|F7B4C6
+F22|浅水红|FDC0D0
+F23|橘红|F67E66
+F24|灰桃红|E698AA
+F25|水砖红|E54B4F
+G1|浅肤|FFE2CE
+G2|正常肤|FFC4AA
+G3|深肤|F4C3A5
+G4|小麦肤|E1B383
+G5|土黄褐|EDB045
+G6|赭黄|E99C17
+G7|棕褐色|9D5B3E
+G8|深棕|753832
+G9|浅小麦|E6B483
+G10|土棕黄|D98C39
+G11|米褐|E0C593
+G12|暖肤|FFC890
+G13|红棕|B7714A
+G14|咖啡棕|8D614C
+G15|米白|FCF9E0
+G16|浅米褐|F2D9BA
+G17|深咖啡|78524B
+G18|暖米肤|FFE4CC
+G19|橘棕|E07935
+G20|红褐|A94023
+G21|卡其棕|B88558
+H1|透明白|FDFBFF
+H2|纯白|FEFFFF
+H3|浅灰|B6B1BA
+H4|中灰|89858C
+H5|深灰|48464E
+H6|近黑灰|2F2B2F
+H7|纯黑|000000
+H8|灰裸粉|E7D6DB
+H9|冷白灰|EDEDED
+H10|米灰|EEE9EA
+H11|蓝灰|CECDD5
+H12|暖米白|FFF5ED
+H13|卡其米|F5ECD2
+H14|冷灰绿|CFD7D3
+H15|青灰|98A6A8
+H16|炭黑|1D1414
+H17|浅冷灰|F1EDED
+H18|奶白|FFFDF0
+H19|米杏|F6EFE2
+H20|蓝调灰|949FA3
+H21|浅奶黄白|FFFBE1
+H22|紫灰|CACAD4
+H23|橄榄灰|9A9D94
+M1|灰豆绿|BCC6B8
+M2|灰橄榄绿|8AA386
+M3|灰蓝绿|697D80
+M4|浅卡其|E3D2BC
+M5|米卡其|D0CCAA
+M6|土卡其|B0A782
+M7|灰卡其|B4A497
+M8|灰豆沙|B38281
+M9|土褐卡其|A58767
+M10|灰紫卡其|C5B2BC
+M11|灰紫褐|9F7594
+M12|暗棕灰|644749
+M13|赭石|D19066
+M14|砖赭|C77362
+M15|中性灰绿|757D78
+`;
+
+const SERIES_META = [
+  ["A","黄橙系"],["B","绿色系"],["C","蓝色系"],["D","紫色系"],["E","粉色系"],
+  ["F","红色系"],["G","肤棕系"],["H","黑白灰系"],["M","莫兰迪系"]
+];
+
+const PALETTE = RAW_COLORS.trim().split(/\s+/).map(line => {
+  const [code, name, hex] = line.split("|");
+  const v = parseInt(hex, 16);
+  const rgb = [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+  return { code, name, hex: "#" + hex, rgb, lum: 0.299*rgb[0] + 0.587*rgb[1] + 0.114*rgb[2],
+           series: code[0] };
+});
+const WHITE_CODES = new Set(["H1","H2"]);
+
+/* ================================================================
+   全局状态
+   ================================================================ */
+const CELL = 16;
+const MAX_HISTORY = 50;
+const DPR = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+
+let cols = 60, rows = 60, zoom = 1;
+let grid = new Int16Array(cols * rows).fill(-1);
+let mode = "block";
+let showGrid = true, showCodes = false;
+let refImg = null, refOpacity = 0.35;
+let selectedCell = null;
+let history = [], histPos = -1;
+const matchCache = new Map();
+let seriesFilter = "ALL", searchQuery = "";
+let exportBlob = null, exportFileName = "";
+
+const $ = id => document.getElementById(id);
+const mainCanvas = $("mainCanvas"), bgCanvas = $("bgCanvas");
+const mctx = mainCanvas.getContext("2d"), bctx = bgCanvas.getContext("2d");
+const viewport = $("viewport"), stack = $("canvasStack");
+
+/* ================================================================
+   颜色工具
+   ================================================================ */
+function mixWhite(rgb, t){ return rgb.map(v => Math.round(v + (255 - v) * t)); }
+function mixBlack(rgb, t){ return rgb.map(v => Math.round(v * (1 - t))); }
+function rgbStr(rgb, a = 1){ return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
+function textColorFor(lum){ return lum < 138 ? "#ffffff" : "#202124"; }
+
+function nearestColor(r, g, b){
+  const key = (r << 16) | (g << 8) | b;
+  const ck = key * 2 + ($("swSuppress").checked ? 1 : 0);
+  if (matchCache.has(ck)) return matchCache.get(ck);
+  const suppress = $("swSuppress").checked;
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < PALETTE.length; i++){
+    const c = PALETTE[i];
+    const dr = r - c.rgb[0], dg = g - c.rgb[1], db = b - c.rgb[2];
+    let d = Math.sqrt(0.299*dr*dr + 0.587*dg*dg + 0.114*db*db);
+    if (suppress && WHITE_CODES.has(c.code)) d += 42;
+    if (d < bestD){ bestD = d; best = i; }
+  }
+  matchCache.set(ck, best);
+  return best;
+}
+
+/* ================================================================
+   历史
+   ================================================================ */
+function commit(){
+  history = history.slice(0, histPos + 1);
+  history.push({ cols, rows, data: grid.slice(0) });
+  if (history.length > MAX_HISTORY) history.shift();
+  histPos = history.length - 1;
+  updateHistBtns(); updateStats();
+}
+function loadSnapshot(s){
+  cols = s.cols; rows = s.rows; grid = s.data.slice(0);
+  $("inpCols").value = cols; $("inpRows").value = rows;
+  selectedCell = null;
+  setupCanvases(); renderAll(); updateStats(); markPreset(); fitZoom();
+}
+function undo(){ if (histPos > 0){ histPos--; loadSnapshot(history[histPos]); updateHistBtns(); } }
+function redo(){ if (histPos < history.length - 1){ histPos++; loadSnapshot(history[histPos]); updateHistBtns(); } }
+function updateHistBtns(){
+  $("btnUndo").disabled = histPos <= 0;
+  $("btnRedo").disabled = histPos >= history.length - 1;
+}
+
+/* ================================================================
+   画布 / 手势缩放
+   ================================================================ */
+function cellSize(){ return CELL * zoom; }
+function sizeCanvas(cv, cssW, cssH){
+  cv.style.width = cssW + "px"; cv.style.height = cssH + "px";
+  cv.width = Math.round(cssW * DPR); cv.height = Math.round(cssH * DPR);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  return ctx;
+}
+function setupCanvases(){
+  const cs = cellSize(), w = cols * cs, h = rows * cs;
+  sizeCanvas(mainCanvas, w, h);
+  sizeCanvas(bgCanvas, w, h);
+  stack.style.width = w + "px";
+  stack.style.height = h + "px";
+}
+
+function setZoom(z, fx, fy){
+  const vpRect = viewport.getBoundingClientRect();
+  if (fx === undefined){ fx = vpRect.left + vpRect.width / 2; fy = vpRect.top + vpRect.height / 2; }
+  const oldRect = stack.getBoundingClientRect();
+  const lx = (fx - oldRect.left) / zoom;
+  const ly = (fy - oldRect.top) / zoom;
+  zoom = Math.max(.35, Math.min(8, z));
+  setupCanvases(); renderAll();
+  const newRect = stack.getBoundingClientRect();
+  viewport.scrollLeft += newRect.left - (fx - lx * zoom);
+  viewport.scrollTop  += newRect.top  - (fy - ly * zoom);
+}
+function fitZoom(){
+  const vp = viewport;
+  const availW = vp.clientWidth - 52, availH = vp.clientHeight - 52;
+  const z = Math.min(availW / (cols * CELL), availH / (rows * CELL));
+  zoom = Math.max(.35, Math.min(8, z));
+  setupCanvases(); renderAll();
+  viewport.scrollTo(0, 0);
+}
+
+/* 手势：双指捏合缩放 / 单指拖动（原生滚动）/ 轻点查色号 / 双击适应 */
+const pointers = new Map();
+let pinchDist = 0, movedFar = false, downPos = null, downTime = 0, lastTap = 0;
+
+viewport.addEventListener("pointerdown", e => {
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 1){
+    movedFar = false; downPos = { x: e.clientX, y: e.clientY }; downTime = performance.now();
+  }
+  if (pointers.size === 2){
+    const [p1, p2] = [...pointers.values()];
+    pinchDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+  }
+});
+viewport.addEventListener("pointermove", e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2 && pinchDist > 0){
+    const [p1, p2] = [...pointers.values()];
+    const d = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    if (d > 0) setZoom(zoom * d / pinchDist, mid.x, mid.y);
+    pinchDist = d; movedFar = true;
+  } else if (pointers.size === 1 && downPos){
+    if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 9) movedFar = true;
+  }
+});
+viewport.addEventListener("pointerup", e => {
+  pointers.delete(e.pointerId);
+  pinchDist = 0;
+  if (pointers.size > 0) return;
+  if (!movedFar && downPos && performance.now() - downTime < 420){
+    const now = performance.now();
+    if (now - lastTap < 320){ fitZoom(); lastTap = 0; return; }
+    lastTap = now;
+    const cell = cellFromPoint(downPos.x, downPos.y);
+    if (cell) inspectCell(cell.x, cell.y);
+  }
+  downPos = null;
+});
+viewport.addEventListener("pointercancel", e => { pointers.delete(e.pointerId); pinchDist = 0; });
+viewport.addEventListener("wheel", e => {
+  e.preventDefault();
+  setZoom(zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX, e.clientY);
+}, { passive: false });
+
+function cellFromPoint(fx, fy){
+  const rect = mainCanvas.getBoundingClientRect();
+  const x = Math.floor((fx - rect.left) / rect.width * cols);
+  const y = Math.floor((fy - rect.top) / rect.height * rows);
+  if (x < 0 || y < 0 || x >= cols || y >= rows) return null;
+  return { x, y };
+}
+function inspectCell(x, y){
+  const ci = grid[y * cols + x];
+  const chip = $("statusChip");
+  selectedCell = { x, y };
+  if (ci < 0){
+    chip.innerHTML = `(${x + 1}, ${y + 1}) 空格`;
+  } else {
+    const c = PALETTE[ci];
+    chip.innerHTML = `<span class="dot" style="background:${c.hex}"></span>
+      (${x + 1}, ${y + 1}) <b>${c.code}</b> ${c.name} ${c.hex.toUpperCase()}`;
+  }
+  renderMain();
+}
+
+/* ================================================================
+   渲染
+   ================================================================ */
+function drawBeadCell(ctx, x, y, cs, ci){
+  const c = PALETTE[ci];
+  if (mode === "block"){
+    ctx.fillStyle = c.hex;
+    ctx.fillRect(x * cs, y * cs, cs, cs);
+    return;
+  }
+  const cx = x * cs + cs / 2, cy = y * cs + cs / 2, r = cs * 0.42;
+  const g = ctx.createRadialGradient(cx - r * .38, cy - r * .42, r * .12, cx, cy, r * 1.05);
+  g.addColorStop(0, rgbStr(mixWhite(c.rgb, .5)));
+  g.addColorStop(.5, rgbStr(c.rgb));
+  g.addColorStop(1, rgbStr(mixBlack(c.rgb, .3)));
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.55)";
+  ctx.beginPath();
+  ctx.ellipse(cx - r * .38, cy - r * .44, r * .2, r * .13, -0.7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = rgbStr(mixBlack(c.rgb, .42), .85);
+  ctx.beginPath(); ctx.arc(cx, cy, r * .15, 0, Math.PI * 2); ctx.fill();
+}
+function drawCodes(ctx, cs, forExport){
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (let y = 0; y < rows; y++){
+    for (let x = 0; x < cols; x++){
+      const ci = grid[y * cols + x];
+      if (ci < 0) continue;
+      const c = PALETTE[ci];
+      ctx.fillStyle = textColorFor(c.lum);
+      ctx.font = `${forExport ? 700 : 600} ${Math.max(6, cs * (forExport ? 0.30 : 0.34))}px -apple-system,'PingFang SC',sans-serif`;
+      ctx.fillText(c.code, x * cs + cs / 2, y * cs + cs / 2 + .5);
+    }
+  }
+}
+function drawGridLines(ctx, w, h, cs){
+  const css = getComputedStyle(document.documentElement);
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= cols; i++){
+    ctx.strokeStyle = (i % 5 === 0) ? css.getPropertyValue("--grid-strong").trim() : css.getPropertyValue("--grid-line").trim();
+    ctx.beginPath(); ctx.moveTo(i * cs + .5, 0); ctx.lineTo(i * cs + .5, h); ctx.stroke();
+  }
+  for (let j = 0; j <= rows; j++){
+    ctx.strokeStyle = (j % 5 === 0) ? css.getPropertyValue("--grid-strong").trim() : css.getPropertyValue("--grid-line").trim();
+    ctx.beginPath(); ctx.moveTo(0, j * cs + .5); ctx.lineTo(w, j * cs + .5); ctx.stroke();
+  }
+}
+function renderMain(){
+  const cs = cellSize(), w = cols * cs, h = rows * cs;
+  const css = getComputedStyle(document.documentElement);
+  mctx.clearRect(0, 0, w, h);
+  if (!(refImg && $("swRefVisible").checked)){
+    mctx.fillStyle = css.getPropertyValue("--board").trim();
+    mctx.fillRect(0, 0, w, h);
+    mctx.fillStyle = css.getPropertyValue("--board-alt").trim();
+    for (let y = 0; y < rows; y++)
+      for (let x = 0; x < cols; x++)
+        if (grid[y * cols + x] < 0 && (x + y) % 2 === 0)
+          mctx.fillRect(x * cs, y * cs, cs, cs);
+  }
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++){
+      const ci = grid[y * cols + x];
+      if (ci >= 0) drawBeadCell(mctx, x, y, cs, ci);
+    }
+  if (showGrid) drawGridLines(mctx, w, h, cs);
+  if (showCodes) drawCodes(mctx, cs, false);
+  if (selectedCell){
+    const {x, y} = selectedCell;
+    mctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    mctx.lineWidth = Math.max(1.5, cs * .08);
+    mctx.strokeRect(x * cs + mctx.lineWidth / 2, y * cs + mctx.lineWidth / 2,
+                    cs - mctx.lineWidth, cs - mctx.lineWidth);
+  }
+}
+function renderBg(){
+  const cs = cellSize(), w = cols * cs, h = rows * cs;
+  bctx.clearRect(0, 0, w, h);
+  if (refImg && $("swRefVisible").checked){
+    bctx.globalAlpha = refOpacity;
+    bctx.drawImage(refImg, 0, 0, w, h);
+    bctx.globalAlpha = 1;
+  }
+}
+function renderAll(){ renderBg(); renderMain(); updateEmptyHint(); }
+function updateEmptyHint(){
+  $("emptyHint").classList.toggle("show", !grid.some(v => v >= 0) && !refImg);
+}
+
+/* ================================================================
+   用料统计
+   ================================================================ */
+function countBeads(){
+  const counts = new Map();
+  for (let i = 0; i < grid.length; i++){
+    const v = grid[i];
+    if (v >= 0) counts.set(v, (counts.get(v) || 0) + 1);
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+}
+function updateStats(){
+  const list = countBeads();
+  const total = list.reduce((s, e) => s + e[1], 0);
+  $("sumTotal").textContent = total.toLocaleString();
+  $("sumKinds").textContent = list.length;
+  const box = $("statsList");
+  if (!list.length){
+    box.innerHTML = '<div class="stats-empty">还没有生成图纸<br>选图后点「一键生成拼豆图纸」</div>';
+    return;
+  }
+  box.innerHTML = "";
+  list.forEach(([ci, n], idx) => {
+    const c = PALETTE[ci];
+    const row = document.createElement("div");
+    row.className = "stat-row";
+    row.style.animationDelay = Math.min(idx * 30, 320) + "ms";
+    row.innerHTML = `<span class="sw" style="background:${c.hex}"></span>
+      <span class="code">${c.code}</span><span class="name">${c.name}</span>
+      <span class="num">× ${n}</span>`;
+    box.appendChild(row);
+  });
+}
+
+/* ================================================================
+   色板图鉴
+   ================================================================ */
+function buildSeriesChips(){
+  const box = $("seriesChips");
+  box.innerHTML = "";
+  const mk = (key, label) => {
+    const b = document.createElement("button");
+    b.className = "series-chip" + (seriesFilter === key ? " active" : "");
+    b.textContent = label;
+    b.onclick = () => { seriesFilter = key; buildSeriesChips(); buildPalette(); };
+    box.appendChild(b);
+  };
+  mk("ALL", "全部");
+  SERIES_META.forEach(([k]) => mk(k, k));
+}
+function paletteVisible(c){
+  if (seriesFilter !== "ALL" && c.series !== seriesFilter) return false;
+  if (searchQuery && !(c.code.toLowerCase().includes(searchQuery)
+      || c.name.toLowerCase().includes(searchQuery)
+      || c.hex.toLowerCase().includes(searchQuery))) return false;
+  return true;
+}
+function buildPalette(){
+  const box = $("paletteGrid");
+  box.innerHTML = "";
+  let shown = 0;
+  SERIES_META.forEach(([key, label]) => {
+    const items = PALETTE.filter(c => c.series === key && paletteVisible(c));
+    if (!items.length) return;
+    const t = document.createElement("div");
+    t.className = "group-title";
+    const dotColor = items[Math.floor(items.length / 2)].hex;
+    t.innerHTML = `<span class="g-dot" style="background:${dotColor}"></span>${key} · ${label}<span class="g-count">${items.length} 色</span>`;
+    box.appendChild(t);
+    items.forEach((c, i) => {
+      const d = document.createElement("div");
+      d.className = "swatch";
+      d.style.background = c.hex;
+      d.style.animationDelay = Math.min(i * 12, 260) + "ms";
+      d.innerHTML = `<span class="code">${c.code}</span>`;
+      d.onclick = () => toast(`${c.code} ${c.name} · ${c.hex.toUpperCase()}`);
+      box.appendChild(d);
+      shown++;
+    });
+  });
+  if (!shown) box.innerHTML = '<div class="stats-empty" style="grid-column:1/-1">没有匹配的颜色</div>';
+}
+$("paletteSearch").addEventListener("input", e => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  buildPalette();
+});
+
+/* ================================================================
+   图片导入（仅相册）
+   ================================================================ */
+$("btnAlbum").onclick = () => $("fileAlbum").click();
+$("fileAlbum").onchange = () => {
+  if ($("fileAlbum").files[0]) loadImage($("fileAlbum").files[0]);
+  $("fileAlbum").value = "";
+};
+
+function loadImage(file){
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    refImg = img;
+    $("refName").style.display = "block";
+    $("refName").textContent = "🖼 " + file.name + `（${img.naturalWidth}×${img.naturalHeight}）`;
+    $("btnAlbum").classList.add("has-img");
+    renderAll();
+    toast("图片已载入，点「一键生成」开始识别");
+  };
+  img.onerror = () => { toast("图片读取失败，请换一张", true); URL.revokeObjectURL(url); };
+  img.src = url;
+}
+$("swRefVisible").onchange = renderBg;
+$("refOpacity").addEventListener("input", e => {
+  refOpacity = +e.target.value / 100;
+  $("refOpacityVal").textContent = e.target.value + "%";
+  e.target.style.setProperty("--fill", ((e.target.value - 5) / 95 * 100) + "%");
+  renderBg();
+});
+
+/* ================================================================
+   一键生成
+   ================================================================ */
+$("btnConvert").onclick = () => {
+  if (!refImg){ toast("请先从相册选择一张图片", true); return; }
+  const btn = $("btnConvert");
+  btn.disabled = true; btn.textContent = "⏳ 正在识别颜色…";
+  setTimeout(() => {
+    try {
+      const oc = document.createElement("canvas");
+      oc.width = cols; oc.height = rows;
+      const octx = oc.getContext("2d", { willReadFrequently: true });
+      const iw = refImg.naturalWidth, ih = refImg.naturalHeight;
+      const scale = Math.max(cols / iw, rows / ih);
+      const sw = cols / scale, sh = rows / scale;
+      const sx = (iw - sw) / 2, sy = (ih - sh) / 2;
+      octx.imageSmoothingEnabled = true;
+      octx.imageSmoothingQuality = "high";
+      octx.drawImage(refImg, sx, sy, sw, sh, 0, 0, cols, rows);
+      const data = octx.getImageData(0, 0, cols, rows).data;
+      for (let i = 0; i < cols * rows; i++){
+        const a = data[i * 4 + 3];
+        grid[i] = a < 100 ? -1 : nearestColor(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
+      }
+      selectedCell = null;
+      commit(); renderAll(); fitZoom();
+      const frame = $("canvasFrame");
+      frame.classList.add("glow");
+      setTimeout(() => frame.classList.remove("glow"), 1300);
+      const kinds = new Set(grid).size - (grid.includes(-1) ? 1 : 0);
+      toast(`✨ 已生成图纸：匹配 ${kinds} 种色号`);
+    } finally {
+      btn.disabled = false; btn.textContent = "✨ 一键生成拼豆图纸";
+    }
+  }, 60);
+};
+
+/* ================================================================
+   尺寸
+   ================================================================ */
+const clampSize = v => Math.max(4, Math.min(100, Math.round(v) || 4));
+function applySize(nc, nr){
+  nc = clampSize(nc); nr = clampSize(nr);
+  if (nc === cols && nr === rows){ markPreset(); return; }
+  const g = new Int16Array(nc * nr).fill(-1);
+  const ox = Math.min(cols, nc), oy = Math.min(rows, nr);
+  for (let y = 0; y < oy; y++)
+    for (let x = 0; x < ox; x++)
+      g[y * nc + x] = grid[y * cols + x];
+  cols = nc; rows = nr; grid = g; selectedCell = null;
+  $("inpCols").value = cols; $("inpRows").value = rows;
+  setupCanvases(); commit(); renderAll(); markPreset(); fitZoom();
+  toast(`画布已调整为 ${cols}×${rows}`);
+}
+$("btnApplySize").onclick = () => applySize(+$("inpCols").value, +$("inpRows").value);
+document.querySelectorAll("#sizeChips .chip").forEach(ch => {
+  ch.onclick = () => { const s = +ch.dataset.size; applySize(s, s); };
+});
+function markPreset(){
+  document.querySelectorAll("#sizeChips .chip").forEach(ch => {
+    const s = +ch.dataset.size;
+    ch.classList.toggle("active", s === cols && s === rows);
+  });
+}
+
+/* ================================================================
+   变换
+   ================================================================ */
+$("btnFlipH").onclick = () => {
+  const g = new Int16Array(cols * rows);
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++)
+      g[y * cols + (cols - 1 - x)] = grid[y * cols + x];
+  grid = g; commit(); renderMain(); toast("已水平镜像");
+};
+$("btnFlipV").onclick = () => {
+  const g = new Int16Array(cols * rows);
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++)
+      g[(rows - 1 - y) * cols + x] = grid[y * cols + x];
+  grid = g; commit(); renderMain(); toast("已垂直镜像");
+};
+$("btnRotate").onclick = () => {
+  const g = new Int16Array(cols * rows);
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++)
+      g[x * rows + (rows - 1 - y)] = grid[y * cols + x];
+  const oc = cols; cols = rows; rows = oc; grid = g;
+  $("inpCols").value = cols; $("inpRows").value = rows;
+  selectedCell = null;
+  setupCanvases(); commit(); renderAll(); fitZoom(); toast("已旋转 90°");
+};
+$("btnUndo").onclick = undo;
+$("btnRedo").onclick = redo;
+$("btnClear").onclick = () => {
+  if (!grid.some(v => v >= 0)){ toast("画布已经是空的"); return; }
+  grid.fill(-1); selectedCell = null;
+  commit(); renderMain(); toast("画布已清空");
+};
+
+/* ================================================================
+   视图选项
+   ================================================================ */
+$("ftBlock").onclick = () => { mode = "block"; syncModeBtns(); renderMain(); };
+$("ftBead").onclick = () => { mode = "bead"; syncModeBtns(); renderMain(); };
+function syncModeBtns(){
+  $("ftBlock").classList.toggle("active", mode === "block");
+  $("ftBead").classList.toggle("active", mode === "bead");
+}
+$("ftCodes").onclick = () => { showCodes = !showCodes; $("ftCodes").classList.toggle("active", showCodes); renderMain(); };
+$("ftGrid").onclick = () => { showGrid = !showGrid; $("ftGrid").classList.toggle("active", showGrid); renderMain(); };
+
+/* ================================================================
+   主题
+   ================================================================ */
+function isDark(){ return document.documentElement.dataset.theme === "dark"; }
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  $("btnTheme").textContent = t === "dark" ? "🌙" : "☀️";
+  document.querySelector('meta[name="theme-color"]')
+    .setAttribute("content", t === "dark" ? "#0d0a14" : "#eef4fb");
+  try { localStorage.setItem("pdou-theme", t); } catch (_) {}
+  renderAll();
+}
+$("btnTheme").onclick = () => applyTheme(isDark() ? "light" : "dark");
+
+/* ================================================================
+   导出：高清 JPG → 分享 / 长按保存 / 下载
+   ================================================================ */
+function buildExportCanvas(){
+  const cs = 40;
+  const ec = document.createElement("canvas");
+  ec.width = cols * cs; ec.height = rows * cs;
+  const ctx = ec.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, ec.width, ec.height);
+  ctx.fillStyle = "#f5f6f8";
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++)
+      if (grid[y * cols + x] < 0 && (x + y) % 2 === 0)
+        ctx.fillRect(x * cs, y * cs, cs, cs);
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++){
+      const ci = grid[y * cols + x];
+      if (ci >= 0) drawBeadCell(ctx, x, y, cs, ci);
+    }
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= cols; i++){
+    ctx.strokeStyle = i % 5 === 0 ? "rgba(0,0,0,.34)" : "rgba(0,0,0,.14)";
+    ctx.beginPath(); ctx.moveTo(i * cs + .5, 0); ctx.lineTo(i * cs + .5, ec.height); ctx.stroke();
+  }
+  for (let j = 0; j <= rows; j++){
+    ctx.strokeStyle = j % 5 === 0 ? "rgba(0,0,0,.34)" : "rgba(0,0,0,.14)";
+    ctx.beginPath(); ctx.moveTo(0, j * cs + .5); ctx.lineTo(ec.width, j * cs + .5); ctx.stroke();
+  }
+  drawCodes(ctx, cs, true);
+  return ec;
+}
+
+async function doExport(){
+  if (!grid.some(v => v >= 0)){ toast("画布为空，请先生成图纸", true); return; }
+  const ec = buildExportCanvas();
+  exportFileName = `拼豆图纸_${cols}x${rows}.jpg`;
+  exportBlob = await new Promise(r => ec.toBlob(r, "image/jpeg", 0.95));
+  if (!exportBlob){ toast("图片生成失败，请重试", true); return; }
+
+  const file = new File([exportBlob], exportFileName, { type: "image/jpeg" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })){
+    try {
+      await navigator.share({ files: [file], title: "拼豆图纸" });
+      toast("已发送，请在面板中选择「存储图像」保存到相册");
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError"){ openExportModal(ec.width, ec.height); return; }
+    }
+  }
+  openExportModal(ec.width, ec.height);
+}
+
+function openExportModal(w, h){
+  const img = $("exportImg");
+  if (img.src && img.src.startsWith("blob:")) URL.revokeObjectURL(img.src);
+  img.src = URL.createObjectURL(exportBlob);
+  $("exportInfo").textContent = `${cols}×${rows} 格 · ${w}×${h} px · 含色号标注`;
+  $("exportModal").classList.add("show");
+}
+$("btnExportOrb").onclick = doExport;
+$("btnModalClose").onclick = () => $("exportModal").classList.remove("show");
+$("exportModal").addEventListener("click", e => {
+  if (e.target === $("exportModal")) $("exportModal").classList.remove("show");
+});
+$("btnShare").onclick = async () => {
+  if (!exportBlob) return;
+  const file = new File([exportBlob], exportFileName, { type: "image/jpeg" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })){
+    try {
+      await navigator.share({ files: [file], title: "拼豆图纸" });
+      toast("已发送，请在面板中选择「存储图像」保存到相册");
+    } catch (err) {
+      if (err && err.name !== "AbortError") downloadExport();
+    }
+  } else {
+    downloadExport();
+  }
+};
+function downloadExport(){
+  if (!exportBlob) return;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(exportBlob);
+  a.download = exportFileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  toast("已开始下载，可在文件/相册应用中找到该图片");
+}
+$("btnDownload").onclick = downloadExport;
+
+/* ================================================================
+   复制清单
+   ================================================================ */
+$("btnCopyList").onclick = () => {
+  const list = countBeads();
+  if (!list.length){ toast("画布为空，没有可复制的清单", true); return; }
+  const total = list.reduce((s, e) => s + e[1], 0);
+  const lines = [`【拼豆用料清单】画布 ${cols}×${rows}`, `总计 ${total} 颗 · ${list.length} 种颜色`, ""];
+  list.forEach(([ci, n]) => { const c = PALETTE[ci]; lines.push(`${c.code} ${c.name} × ${n}`); });
+  const text = lines.join("\n");
+  const done = () => toast("用料清单已复制");
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+};
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); done(); } catch (_) { toast("复制失败", true); }
+  ta.remove();
+}
+
+/* ================================================================
+   分段标签
+   ================================================================ */
+const segThumb = $("segThumb");
+function moveThumb(){
+  const active = document.querySelector(".seg-btn.active");
+  if (!active) return;
+  segThumb.style.left = active.offsetLeft + "px";
+  segThumb.style.width = active.offsetWidth + "px";
+}
+function switchPane(key){
+  document.querySelectorAll(".seg-btn").forEach(t => t.classList.toggle("active", t.dataset.pane === key));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === "pane-" + key));
+  $("sheetBody").scrollTop = 0;
+  moveThumb();
+}
+document.querySelectorAll(".seg-btn").forEach(t => t.onclick = () => switchPane(t.dataset.pane));
+
+/* ================================================================
+   Toast
+   ================================================================ */
+let toastTimer = null;
+function toast(msg, warn){
+  const wrap = $("toastWrap");
+  wrap.innerHTML = "";
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerHTML = `<span class="t-ico">${warn ? "⚠️" : "✅"}</span><span>${msg}</span>`;
+  wrap.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 320); }, 2500);
+}
+
+/* ================================================================
+   初始化
+   ================================================================ */
+(function init(){
+  let saved = null;
+  try { saved = localStorage.getItem("pdou-theme"); } catch (_) {}
+  if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+  $("btnTheme").textContent = isDark() ? "🌙" : "☀️";
+  $("refOpacity").style.setProperty("--fill", ((35 - 5) / 95 * 100) + "%");
+
+  buildSeriesChips();
+  buildPalette();
+  setupCanvases();
+  commit();
+  renderAll();
+  updateStats();
+  updateHistBtns();
+  requestAnimationFrame(() => { fitZoom(); moveThumb(); });
+  window.addEventListener("resize", () => { fitZoom(); moveThumb(); });
+})();
+</script>
+</body>
+</html>
